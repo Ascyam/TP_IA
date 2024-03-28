@@ -1,0 +1,5 @@
+1.2) La première requête nous donne le joueur qui doit commencer à jouer et l'état de base du jeu c'est à dire toutes les cases vides.
+
+Le seconde permet d'attribuer à une case du jeu en l'occurence la case (3,2) la valeur o. Contrairement au premier TP où les valeurs étaient fixées par état et donc on ne pouvait que tester la présence ou non d'un élément, dans ce cas, on peut fixer une valeur puisque les cases sont "disponibles"
+
+
