@@ -86,10 +86,8 @@ write_state([Line|Rest]) :-
    
 
 %***********************
-inal_state([[a, b,  c],
-             [h,vide, d],
-             [g, f,  e]]).
-%             ***********************
+
+%***********************
 % REGLES DE DEPLACEMENT (up, down, left, right)             
 %**********************************************
    % format :   rule(+Rule_Name, ?Rule_Cost, +Current_State, ?Next_State)
@@ -174,7 +172,12 @@ delete(N,X,[Y|L], [Y|R]) :-
 	coordonnees([L,C], Mat, Elt) :-
         nth1(L,Mat,Ligne),
         nth1(C,Ligne,Elt).
-        
+
+   test_coordonnees :-
+        coordonnees([2,3], [[a,b,c],[d,e,f]],  P),
+        write('P = '), writeln(P),
+        coordonnees(Coord, [[a,b,c],[d,e,f]],  e),
+        write('Coord = '), writeln(Coord).  
     
     malplace(P,U,F):-
         nth1(L,U,Ligne),
@@ -183,7 +186,13 @@ delete(N,X,[Y|L], [Y|R]) :-
 											 
     malplace2(P,U,F):-
         coordonnees([L,C],U,P),
-        \+(coordonnees([L,C],F,P)).                                         
+        \+(coordonnees([L,C],F,P)).
+
+   test_malpace2 :-
+        final_state(F),
+        initial_state(I),
+        malplace2(P,I,F),
+        write('P = '), writeln(P).                                         
    %*************
    % HEURISTIQUES
    %*************
@@ -216,6 +225,12 @@ heuristique(U,H) :-
         final_state(F),
         findall(P, (malplace2(P,U,F),\+(P = vide)), List),
         length(List,H).
+
+   test_heuristique1 :-
+        initial_state(I),
+        heuristique1(I, H),
+        write('H = '), writeln(H),
+        H is 4.
    
    %****************
    %HEURISTIQUE no 2
@@ -224,13 +239,26 @@ heuristique(U,H) :-
    % Somme des distances de Manhattan à parcourir par chaque piece
    % entre sa position courante et sa positon dans l'etat final
 
-    distance_manhattan(P,U,F,D):-
+   distance_manhattan(P,U,F,D):-
         coordonnees([L,C],U,P),
         coordonnees([Lf,Cf],F,P),
         D is (abs(L-Lf)+abs(C-Cf)).
 
+   test_distance_manhattan :-
+        initial_state(I),
+        final_state(F),
+        distance_manhattan(h,I,F,D),
+        write('D(h) = '), writeln(D),
+        D is 2.
+
     heuristique2(U,H) :-
         final_state(F), 		
         findall(D,(distance_manhattan(P,U,F,D),D > 0, P \= vide),List),
-        sumlist(List,H).					
+        sumlist(List,H).
+
+   test_heuristique2 :-
+        initial_state(I),
+        heuristique2(I, H),
+        write('H = '), writeln(H),
+        H is 4.					
 									
