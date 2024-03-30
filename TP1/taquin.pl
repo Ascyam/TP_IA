@@ -226,11 +226,17 @@ heuristique(U,H) :-
         findall(P, (malplace2(P,U,F),\+(P = vide)), List),
         length(List,H).
 
-   test_heuristique1 :-
+   test_heuristique1_initial :-
         initial_state(I),
         heuristique1(I, H),
         write('H = '), writeln(H),
         H is 4.
+
+   test_heuristique1_final :-
+         final_state(F),
+         heuristique1(F, H),
+         write('H = '), writeln(H),
+         H is 0.
    
    %****************
    %HEURISTIQUE no 2
@@ -256,9 +262,14 @@ heuristique(U,H) :-
         findall(D,(distance_manhattan(P,U,F,D),D > 0, P \= vide),List),
         sumlist(List,H).
 
-   test_heuristique2 :-
+   test_heuristique2_initial :-
         initial_state(I),
         heuristique2(I, H),
         write('H = '), writeln(H),
-        H is 4.					
-									
+        H is 5.					
+
+   test_heuristique2_final :-
+        final_state(F),
+        heuristique2(F, H),
+        write('H = '), writeln(H),
+        H is 0.			
