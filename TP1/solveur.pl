@@ -47,13 +47,11 @@ Predicat principal de l'algorithme :
 
 %*******************************************************************************
 
-main :-
+main(S0) :-
 	% initialisations Pf, Pu et Q 
 	empty(Pfi),
 	empty(Pui),
 	empty(Q),
-
-	initial_state(S0),
 
 	heuristique(S0,H0),
 
@@ -72,7 +70,7 @@ affiche_solution(Pu, Q) :-
 	belongs([U, [_, _, _], Pere, A], Pu),
 	writeln("Solution : "),
 	affiche(Q, Pere),
-    write(A).
+    writeln(A).
 
 
 affiche(Q, U) :-
@@ -124,6 +122,7 @@ aetoile(nil, _, _):-
 aetoile(Pf, Ps, Qs) :-
 	final_state(Fin),
 	suppress_min([[F,_,_],Fin], Pf, _),
+    writeln(""),
     write("Solution trouvée : "),
 	write(F),
     writeln(" coup(s)"),
@@ -137,3 +136,38 @@ aetoile(Pf, Ps, Qs):-
 	loop_successor(Succs, Pf2, Ps2, Qs, Pf3, Ps3),
     insert([Fin, [F,H,G], Pere, A], Qs, Qs1),
 	aetoile(Pf3,Ps3,Qs1).	
+
+test_aetoile:-
+    
+    S0 = [[b, h, c],      
+          [a, f, d],       
+          [g,vide,e]],
+
+    S1 = [[a, b, c],        
+          [ g, h, d],
+          [vide,f, e]], 
+
+    S2 = [[b, c, d],
+          [a,vide,g],
+          [f, h, e]],
+			
+    S3 = [[f, g, a],
+          [h,vide,b],
+          [d, c, e]],
+			
+    S4 = [[e, f, g],
+          [d,vide,h],
+          [c, b, a]],
+
+    main(S0),
+    writeln("Solution attendue S0: up -> up -> left -> down -> right"),
+    main(S1),
+    writeln("Solution attendue S1: up -> right"),
+    main(S2),
+    writeln("Solution attendue S2: right -> up -> left -> left -> down -> right -> down -> left -> up -> right"),
+    main(S3),
+    writeln("Solution attendue S3: down -> left -> up -> up -> right -> right -> down -> left -> down -> left -> up -> up -> right -> right -> down -> left -> down -> left -> up -> right"),
+    main(S4),
+    writeln("Solution attendue S4: right -> up -> left -> left -> down -> down -> right -> right -> up -> up -> left -> left -> down -> down -> right -> right -> up -> up -> left -> left -> down -> down -> right -> right -> up -> up -> left -> left -> down -> right").
+
+%*******************************************************************************
