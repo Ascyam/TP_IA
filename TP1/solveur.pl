@@ -66,30 +66,29 @@ main :-
 	% lancement de Aetoile
 	aetoile(Pf,Pu,Q).  
 
-
-
 %*******************************************************************************
+affiche_solution(Pu, Q) :-
+	final_state(U),
+	belongs([U, [_, _, _], Pere, A], Pu),
+	writeln("Solution : "),
+	affiche(Q, Pere),
+    write(A).
 
-affiche_solution(nil,_,_).
 
-affiche_solution(U,Pu,Q) :-
-    U \= nil,
-    belongs([U,[_,_,_],Pere,A],Q),
-    affiche_solution(Pere,Pu,Q),
-    write(A), write(' -> ').
+affiche(Q, U) :-
+	belongs([U,_,_,nil], Q),
+	!.
 
-affiche_solution(U,Pu,Q) :-
-    U \= nil,
-    belongs([U,[_,_,_],Pere,A],Pu),
-    affiche_solution(Pere,Pu,Q),
-    write(A), write(' -> ').
+affiche(Q, U) :-
+	belongs([U,_,P,A], Q),
+	affiche(Q,P),
+    write(A),write(" -> ").
 
 expand(U, Gu, L) :-
 	findall([U1, [F, H, G], U, A], 
             (rule(A,1, U, U1), G is Gu+1, 
             heuristique(U1, H), F is (H+G)), 
             L).
-	
 
 loop_successor([], Pf, Pu, _, Pf, Pu).
 
@@ -119,21 +118,22 @@ loop_successor([[S0, [F0, H0, G0], Pere, A]|R], Pf, Pu, Q, Pf3, Pu3) :-
     loop_successor(R, Pf2, Pu2, Q, Pf3, Pu3).
 
 
+aetoile(nil, _, _):-
+	write('PAS DE SOLUTION : L’ETAT FINAL N’EST PAS ATTEIGNABLE !'), !.
+
 aetoile(Pf, Ps, Qs) :-
 	final_state(Fin),
 	suppress_min([[F,_,_],Fin], Pf, _),
-	affiche_solution(Ps,Qs),
     write("Solution trouvée : "),
-	writeln(F) ,
-	!.
-
-aetoile(nil, _, _):-
-	write('PAS DE SOLUTION : L’ETAT FINAL N’EST PAS ATTEIGNABLE !'), !.
+	write(F),
+    writeln(" coup(s)"),
+    !,
+    affiche_solution(Ps,Qs).
 	
 aetoile(Pf, Ps, Qs):-
 	suppress_min([[F,H,G], Fin], Pf, Pf2),
 	suppress([Fin,[F,H,G],Pere,A], Ps, Ps2),
-	insert([Fin, [F,H,G], Pere, A], Qs, Qs1),
 	expand(Fin, G, Succs),
-	loop_successor(Succs, Pf2, Ps2, Pf3, Ps3),
+	loop_successor(Succs, Pf2, Ps2, Qs, Pf3, Ps3),
+    insert([Fin, [F,H,G], Pere, A], Qs, Qs1),
 	aetoile(Pf3,Ps3,Qs1).	
