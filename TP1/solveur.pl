@@ -58,15 +58,18 @@ main(S0) :-
 	G0 is 0,
 	F0 = H0 + G0,
 
+    size_tab_2d(S0,N),
+
 	insert([[F0,H0,G0], S0], Pfi, Pf),
 	insert([S0,[F0,H0,G0], nil, nil], Pui, Pu),	
 
 	% lancement de Aetoile
-	aetoile(Pf,Pu,Q).  
+	aetoile(Pf,Pu,Q,N).  
 
 %*******************************************************************************
-affiche_solution(Pu, Q) :-
+affiche_solution(Pu, Q, N) :-
 	final_state(U),
+    size_tab_2d(U,N),
 	belongs([U, [_, _, _], Pere, A], Pu),
 	writeln("Solution : "),
 	affiche(Q, Pere),
@@ -116,26 +119,27 @@ loop_successor([[S0, [F0, H0, G0], Pere, A]|R], Pf, Pu, Q, Pf3, Pu3) :-
     loop_successor(R, Pf2, Pu2, Q, Pf3, Pu3).
 
 
-aetoile(nil, _, _):-
+aetoile(nil, _, _,_):-
 	write('PAS DE SOLUTION : L’ETAT FINAL N’EST PAS ATTEIGNABLE !'), !.
 
-aetoile(Pf, Ps, Qs) :-
+aetoile(Pf, Ps, Qs, N) :-
 	final_state(Fin),
+    size_tab_2d(Fin,N),
 	suppress_min([[F,_,_],Fin], Pf, _),
     writeln(""),
     write("Solution trouvée : "),
 	write(F),
     writeln(" coup(s)"),
     !,
-    affiche_solution(Ps,Qs).
+    affiche_solution(Ps,Qs,N).
 	
-aetoile(Pf, Ps, Qs):-
+aetoile(Pf, Ps, Qs, N):-
 	suppress_min([[F,H,G], Fin], Pf, Pf2),
 	suppress([Fin,[F,H,G],Pere,A], Ps, Ps2),
 	expand(Fin, G, Succs),
 	loop_successor(Succs, Pf2, Ps2, Qs, Pf3, Ps3),
     insert([Fin, [F,H,G], Pere, A], Qs, Qs1),
-	aetoile(Pf3,Ps3,Qs1).	
+	aetoile(Pf3,Ps3,Qs1, N).	
 
 test_aetoile:-
     

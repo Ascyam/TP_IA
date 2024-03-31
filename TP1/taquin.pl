@@ -32,16 +32,24 @@ Les autres prédicats sont spécifiques au Taquin.
    %********************   
    % format :  initial_state(+State) ou State est une matrice (liste de listes)
    
-
+/*
 initial_state([ [b, h, c],       % C'EST L'EXEMPLE PRIS EN COURS
                 [a, f, d],       % 
                 [g,vide,e] ]).   % h1=4,   h2=5,   f*=5
 
 
-
+initial_state([[c,b,o,j],
+               [h,g,f,m],
+               [a,i,n,k],
+               [l,d,e,vide]]).   %Non résolvable ou trop long -> erreur stack overflow.
+*/
+initial_state([[k,g,c,n],
+               [a,f,d,h],
+               [m,o,l,j], 
+               [b,i,e,vide]]).
 % AUTRES EXEMPLES POUR LES TESTS DE  A*
 
-
+/*
 initial_state([ [ a, b, c],        
                 [ g, h, d],
                 [vide,f, e] ]). % h2=2, f*=2
@@ -52,17 +60,17 @@ initial_state([ [b, c, d],
 			
 initial_state([ [f, g, a],
                 [h,vide,b],
-                [d, c, e]  ]). % h2=16, f*=20*/
+                [d, c, e]  ]). % h2=16, f*=20
 			
 initial_state([ [e, f, g],
                 [d,vide,h],
                 [c, b, a]  ]). % h2=24, f*=30 
 
-/*initial_state([ [a, b, c],
+initial_state([ [a, b, c],
                 [g,vide,d],
-                [h, f, e]]). % etat non connexe avec l'etat final (PAS DE SOLUTION)*/
+                [h, f, e]]). % etat non connexe avec l'etat final (PAS DE SOLUTION)
   
-
+*/
 
    %******************
    % ETAT FINAL DU JEU
@@ -73,7 +81,10 @@ final_state([[a, b,  c],
              [h,vide, d],
              [g, f,  e]]).
 
-			 
+final_state([[a,b,c,d],
+            [e,f,g,h],
+            [i,j,k,l],
+            [m,n,o,vide]]).			 
    %********************
    % AFFICHAGE D'UN ETAT
    %********************
@@ -170,36 +181,37 @@ delete(N,X,[Y|L], [Y|R]) :-
 
 	% Notre code:
 	coordonnees([L,C], Mat, Elt) :-
-        nth1(L,Mat,Ligne),
-        nth1(C,Ligne,Elt).
+      nth1(L,Mat,Ligne),
+      nth1(C,Ligne,Elt).
 
    test_coordonnees :-
-        coordonnees([2,3], [[a,b,c],[d,e,f]],  P),
-        write('P = '), writeln(P),
-        coordonnees(Coord, [[a,b,c],[d,e,f]],  e),
-        write('Coord = '), writeln(Coord).  
+      coordonnees([2,3], [[a,b,c],[d,e,f]],  P),
+      write('P = '), writeln(P),
+      coordonnees(Coord, [[a,b,c],[d,e,f]],  e),
+      write('Coord = '), writeln(Coord).  
     
-    malplace(P,U,F):-
-        nth1(L,U,Ligne),
-        nth1(C,Ligne,P),
-        \+((nth1(L,F,Ligne2), nth1(C,Ligne2,P))).
+   malplace(P,U,F):-
+      nth1(L,U,Ligne),
+      nth1(C,Ligne,P),
+      \+((nth1(L,F,Ligne2), nth1(C,Ligne2,P))).
 											 
-    malplace2(P,U,F):-
-        coordonnees([L,C],U,P),
-        \+(coordonnees([L,C],F,P)).
+   malplace2(P,U,F):-
+      coordonnees([L,C],U,P),
+      \+(coordonnees([L,C],F,P)).
 
    test_malpace2 :-
-        final_state(F),
-        initial_state(I),
-        malplace2(P,I,F),
-        write('P = '), writeln(P).                                         
+      final_state(F),
+      initial_state(I),
+      malplace2(P,I,F),
+      write('P = '), writeln(P). 
+                                        
    %*************
    % HEURISTIQUES
    %*************
    
 heuristique(U,H) :-
- %   heuristique1(U, H).  % au debut on utilise l'heuristique 1 
-    heuristique2(U, H).  % ensuite utilisez plutot l'heuristique 2  
+   %heuristique1(U, H).  % au debut on utilise l'heuristique 1 
+   heuristique2(U, H).  % ensuite utilisez plutot l'heuristique 2  
    
    
    %****************
@@ -221,22 +233,25 @@ heuristique(U,H) :-
    
    % Notre code:
 
-    heuristique1(U, H) :-
-        final_state(F),
-        findall(P, (malplace2(P,U,F),\+(P = vide)), List),
-        length(List,H).
+   %Donne la nombre d'élément dans un tableau à 2 dimensions.
+   size_tab_2d(T,N):-
+      findall(E,(member(X,T),length(X,E)),List),
+      sumlist(List,N).
 
-   test_heuristique1_initial :-
-        initial_state(I),
-        heuristique1(I, H),
-        write('H = '), writeln(H),
-        H is 4.
+   heuristique1(U, H) :-
+      size_tab_2d(U,N),
+      final_state(F),
+      size_tab_2d(F,N),
+      findall(P, (malplace2(P,U,F),\+(P = vide)), List),
+      length(List,H).
 
-   test_heuristique1_final :-
-         final_state(F),
-         heuristique1(F, H),
-         write('H = '), writeln(H),
-         H is 0.
+   test_heuristique1_initial(I):-
+      heuristique1(I, H),
+      write('H = '), writeln(H).
+
+   test_heuristique1_final(I) :-
+      heuristique1(I, H),
+      write('H = '), writeln(H).
    
    %****************
    %HEURISTIQUE no 2
@@ -246,30 +261,32 @@ heuristique(U,H) :-
    % entre sa position courante et sa positon dans l'etat final
 
    distance_manhattan(P,U,F,D):-
-        coordonnees([L,C],U,P),
-        coordonnees([Lf,Cf],F,P),
-        D is (abs(L-Lf)+abs(C-Cf)).
+      coordonnees([L,C],U,P),
+      coordonnees([Lf,Cf],F,P),
+      D is (abs(L-Lf)+abs(C-Cf)).
 
-   test_distance_manhattan :-
-        initial_state(I),
-        final_state(F),
-        distance_manhattan(h,I,F,D),
-        write('D(h) = '), writeln(D),
-        D is 2.
+   test_distance_manhattan(I) :-
+      final_state(F),
+      size_tab_2d(I,N),
+      size_tab_2d(F,N),
+      distance_manhattan(h,I,F,D),
+      write('D(h) = '), writeln(D).
 
-    heuristique2(U,H) :-
-        final_state(F), 		
-        findall(D,(distance_manhattan(P,U,F,D),D > 0, P \= vide),List),
-        sumlist(List,H).
+   heuristique2(U,H) :-
+      final_state(F),
+      size_tab_2d(U,N),
+      size_tab_2d(F,N), 		
+      findall(D,(distance_manhattan(P,U,F,D),D > 0, P \= vide),List),
+      sumlist(List,H).
 
    test_heuristique2_initial :-
-        initial_state(I),
-        heuristique2(I, H),
-        write('H = '), writeln(H),
-        H is 5.					
+      initial_state(I),
+      heuristique2(I, H),
+      write('I = '), writeln(I),
+      write('H = '), writeln(H).			
 
    test_heuristique2_final :-
-        final_state(F),
-        heuristique2(F, H),
-        write('H = '), writeln(H),
-        H is 0.			
+      final_state(F),
+      heuristique2(F, H),
+      write('F = '), writeln(F),
+      write('H = '), writeln(H).	
